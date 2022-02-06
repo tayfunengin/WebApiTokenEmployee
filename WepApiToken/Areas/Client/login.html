@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../../Content/bootstrap.css" rel="stylesheet" />
+    <script src="../../Scripts/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+    <div class="alert alert-danger" style="display:none">
+        <span id="error"></span>
+    </div>
+    <main class="container">
+        <div class="row">
+
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Kullanıcı Adı</label>
+                            <input type="text" class="form-control" id="username" />
+                        </div>
+                        <div class="form-group">
+                            <label>Şifre</label>
+                            <input type="password" class="form-control" id="password" />
+                        </div>
+                        <button class="btn btn-primary" id="login">Giriş Yap</button>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+    </main>
+    <script>
+
+        $(function () {
+
+            $("#login").click(function () {
+
+                var username = $("#username").val();
+                var password = $("#password").val();
+
+                $.ajax({
+
+                    type: 'Post',
+                    url: '/Token',
+                    dataType: 'Json',
+                    data: {
+                        UserName: username,
+                        Password: password,
+                        grant_type: "password"
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        alert(data.access_token)
+                    },
+                    complete: function (data) {
+                        if (data.status == '401') {
+                            $(".alert").show();
+                            $("#error").html("Veriyi görüntüleme yetkiniz bulunmamakta");
+                        }
+                    }
+
+                });
+
+            })
+
+        })
+
+    </script>
+
+ </body>
+ </html>

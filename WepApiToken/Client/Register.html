@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../Content/bootstrap.css" rel="stylesheet" />
+    <title></title>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="card col-sm-9 col-md-6  mx-auto mt-3">         
+
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Sign up</h4>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="Login.html" class="btn btn-success float-end">Login</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="form-group col-md-9 col-xl-6 ">
+                    <label>Email</label>
+                    <input type="email" name="email" id="email" class="form-control" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Create Password</label>
+                            <input type="password" id="password" name="password" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Repeat Password</label>
+                            <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                    <div class="form-group">
+                        <input type="button" id="btnRegister" class="btn btn-outline-primary form-control" value="Register">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" tabindex="-1" id="successModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Success</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Registration is successful. You can login now!</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="errorDiv" class="alert alert-danger collapse">
+                <a id="closeLink" class="close float-end" href="#" style="text-decoration:none; color:red; font-weight:bold;">&times;</a>
+                <div id="errorDivText">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="../Scripts/jquery-3.4.1.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript">
+
+        $(function () {
+
+            $("#closeLink").click(function () {
+                $("#errorDiv").hide('fade');
+            });
+
+            $("#successModal").on("hidden.bs.modal", function () {
+                window.location.href = "Login.html";
+            });
+
+            $("#btnRegister").click(function () {
+
+                $.ajax({
+                    url: '/api/Account/Register',
+                    method: 'Post',
+                    data: {
+                        Email: $("#email").val(),
+                        Password: $("#password").val(),
+                        ConfirmPassword: $("#ConfirmPassword").val()
+                    },
+                    success: function () {                   
+                        $('#successModal').modal('show');                     
+                    },
+                    error: function (jqXHR) {
+                        $('#errorDivText').text(jqXHR.responseText);
+                        $('#errorDiv').show('fade');
+                    }
+                });
+            });
+        });
+
+
+    </script>
+</body>
+</html>
+

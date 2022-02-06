@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../Content/bootstrap.css" rel="stylesheet" />
+    <title></title>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="card col-md-9 mx-auto mt-3">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3>Employee List</h3>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <button class="btn btn-primary" id="btnEmployees">Get Employees</button>
+                            </div>
+                            <div class="col-sm-4">
+                                <button class="btn btn-success d-none" id="btnAdd">Add</button>
+                            </div>
+                            <div class="col-sm-4">
+                                <button class="btn btn-warning d-none" id="btnLogoff">Log Off</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <table class="table table-bordered table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Title</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Gender</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblBody">
+                                <!--Get Api endpoint-->
+                            </tbody>
+                        </table>
+                        <div id="errorDiv" class="alert alert-danger collapse">
+                            <a id="closeLink" class="close float-end" href="#" style="text-decoration:none; color:red; font-weight:bold;">&times;</a>
+                            <div id="errorDivText">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 collapse" id="addOrUpdate">
+                        <input type="hidden" id="empId" value="" />
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" class="form-control" id="title" />
+                        </div>
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" class="form-control" id="firstName" />
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" class="form-control" id="lastName" />
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <input type="text" class="form-control" id="gender" />
+                        </div>
+                        <button class="btn btn-success mt-2" id="btnAddEmployee">Add</button>
+                        <button class="btn btn-success mt-2" id="btnUpdateEmployee">Update</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="../Scripts/jquery-3.4.1.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+    <script>
+
+        function LoadEmployees(empleeData) {
+            $("#tblBody").find("tr").remove();
+            $.each(empleeData, function (index, data) {
+                $("#tblBody").append(
+                    `
+                                                    <tr>
+                                                       <td>${data.ID}</td>
+                                                       <td>${data.Title}</td>
+                                                       <td>${data.FirstName}</td>
+                                                       <td>${data.LastName}</td>
+                                                       <td>${data.Gender}</td>
+                                                       <td>
+                                                            <button class="btn btn-xs btn-danger" value="delete" id="${data.ID}">Delete</button>
+                                                            <button class="btn btn-xs btn-warning" value="update" id="${data.ID}">Update</button>
+                                                       </td>
+                                                   </tr>
+                                             `
+                )
+            })
+        };
+
+
+        $(function () {
+
+            if (sessionStorage.getItem("accessToken") != null) {
+
+                $("#btnAdd").removeClass("d-none");
+                $("#btnLogoff").removeClass("d-none");
+            }
+
+            $("#closeLink").click(function () {
+                $("#errorDiv").hide('fade');
+            });
+
+            $("#btnLogoff").click(function () {
+                sessionStorage.removeItem("accessToken");
+                window.location.href = "Login.html";
+            })
+
+            $("#btnAdd").click(function () {
+                $("#addOrUpdate").show("fade");
+                $("#btnAddEmployee").css("display", "inline-block");
+                $("#btnUpdateEmployee").css("display", "none");
+            })
+
+            //List the Employees
+            $("#btnEmployees").click(function () {
+
+                $.ajax({
+                    type: "Get",
+                    url: "https://localhost:44360/api/employees",
+                    headers: {
+                        "Authorization": "Bearer " + sessionStorage.getItem("accessToken")
+                    },
+                    success: function (data) {
+                        LoadEmployees(data);
+                    },
+                    error: function (jqXHR) {
+                        $('#errorDivText').text(jqXHR.responseText);
+                        $('#errorDiv').show('fade');
+                    },
+                    complete: function (data) {
+                        if (data.status == '401') {
+                            window.location.href = "Login.html";
+                        }
+                    }
+
+                })
+            })
+
+            //update-delete
+            $("#tblBody").on("click", "button", function () {
+
+                var currentValue = $(this).attr("value");
+                var currentId = $(this).attr("id");
+                if (currentValue == "delete") {
+
+                    var messsage = confirm("Do you want to continue?");
+
+                    if (messsage) {
+                        $.ajax({
+                            type: "Delete",
+                            url: "https://localhost:44360/api/employees/" + currentId,
+                            headers: {
+                                "Authorization": "Bearer " + sessionStorage.getItem("accessToken")
+                            },
+                            success: function (data) {
+                                LoadEmployees(data);
+                            }
+
+                        })
+                    } else {
+                        alert("Cancelled!");
+                    }
+                }
+                else {
+
+                    $("#addOrUpdate").show("fade");
+                    $("#btnAddEmployee").css("display", "none");
+                    $("#btnUpdateEmployee").css("display", "inline-block");
+                    $("#empId").val(currentId);
+
+                }
+
+            })
+            //update
+            $("#btnUpdateEmployee").click(function () {
+                $.ajax({
+                    type: "Put",
+                    url: "https://localhost:44360/api/employees/",
+                    headers: {
+                        "Authorization": "Bearer " + sessionStorage.getItem("accessToken")
+                    },
+                    data: {
+                        ID: $("#empId").val(),
+                        FirstName: $("#firstName").val(),
+                        Title: $("#title").val(),
+                        LastName: $("#lastName").val(),
+                        Gender: $("#gender").val()
+                    },
+                    dataType: "Json",
+                    success: function (data) {
+                        LoadEmployees(data);
+                        $("#firstName").val("");
+                        $("#title").val("");
+                        $("#lastName").val("");
+                        $("#gender").val("");
+                    }
+                });
+
+            });
+
+            //add
+            $("#btnAddEmployee").click(function () {
+                $.ajax({
+                    type: "Post",
+                    url: "https://localhost:44360/api/employees/",
+                    headers: {
+                        "Authorization": "Bearer " + sessionStorage.getItem("accessToken")
+                    },
+                    data: {
+                        FirstName: $("#firstName").val(),
+                        Title: $("#title").val(),
+                        LastName: $("#lastName").val(),
+                        Gender: $("#gender").val()
+                    },
+                    dataType: "Json",
+                    success: function (data) {
+                        LoadEmployees(data);
+                        $("#firstName").val("");
+                        $("#title").val("");
+                        $("#lastName").val("");
+                        $("#gender").val("");
+                    }
+                })
+
+            })
+
+
+        })
+    </script>
+</body>
+</html>
