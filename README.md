@@ -4,7 +4,7 @@ This is a sample Web Api Token Based Authentication project where you can perfor
 
 ## Configuration
 You can download the application directly to your computer from the download section.
-Application has been developped with Code First Data-Access method. The application has an entity named Employee. You can find the EmployeeDbContext which has the Connection string: "server=.;database=EmployeeDB;trusted_connection = true;". If you are using user and password, you can change from here. Database name will be EmployeeDB. If you have existing database with same name then you need to change the name.
+Application has been developped with Code First Data-Access method. The application has an entity named Employee. You can find the EmployeeDbContext which has the Connection string: "server=.;database=EmployeeDB;trusted_connection = true;". If you are using user and password, you can change from here. Database name will be EmployeeDB. If you have existing database with same name then you need to change the name. Don't forget to change it from web.config too.
 
 Please enter: Enable-Migrations -ContextTypeName WepApiToken.Context.EmployeeDbContext in Package Manager Console.
 
